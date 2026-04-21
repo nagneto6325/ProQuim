@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Dashboard</h1>
+<p>Bienvenido, {{ user }} ({{ rol }})</p>
+
+<!-- NOTA: Los KPIs muestran el resumen del sistema -->
+<div class="grid-3">
+    <div class="kpi-card">
+        <h3>📋 Recetas</h3>
+        <div class="kpi-number">{{ total_recetas }}</div>
+        <p>Recetas tecnicas registradas</p>
+    </div>
+    
+    <div class="kpi-card">
+        <h3>⚙️ Ordenes Activas</h3>
+        <div class="kpi-number">{{ ordenes_activas }}</div>
+        <p>Ordenes en produccion</p>
+    </div>
+    
+    <div class="kpi-card">
+        <h3>⚠️ Alertas de Stock</h3>
+        <div class="kpi-number" style="color: #ef4444;">{{ alertas_stock }}</div>
+        <p>Materiales bajo stock minimo</p>
+    </div>
+</div>
+
+<div class="card">
+    <h3>📊 Produccion Reciente</h3>
+    <p>Graficos y analisis proximamente</p>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>📦 Ordenes de Produccion</h1>
+
+<!-- NOTA: Lista de ordenes existentes con su estado y trazabilidad -->
+<div class="card">
+    <h3>Ordenes Registradas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Receta</th>
+                <th>Cantidad</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Trazabilidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for orden in ordenes %}
+            <tr>
+                <td>{{ orden.id }}</td>
+                <td>{{ orden.receta_nombre }}</td>
+                <td>{{ orden.cantidad_producir }} kg</td>
+                <td>
+                    {% if orden.estado == 'Completada' %}
+                    <span class="badge badge-success">{{ orden.estado }}</span>
+                    {% else %}
+                    <span class="badge badge-warning">{{ orden.estado }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ orden.fecha }}</td>
+                <td>
+                    {% if orden.trazabilidad %}
+                    <button class="btn" onclick="alert('Lote: {{ orden.trazabilidad.lote_produccion }}')">
+                        Ver Trazabilidad
+                    </button>
+                    {% else %}
+                    <span class="badge">Sin trazabilidad</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- NOTA: Formulario para crear nuevas ordenes -->
+<div class="card">
+    <h3>Nueva Orden de Produccion</h3>
+    <select id="recetaSelect" style="padding: 8px; margin-right: 10px;">
+        <option value="">Seleccionar receta...</option>
+        {% for receta in recetas %}
+        <option value="{{ receta.id }}">{{ receta.nombre }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" id="cantidad" placeholder="Cantidad a producir (kg)" style="padding: 8px; margin-right: 10px;">
+    <button class="btn btn-primary" onclick="crearOrden()">
+        Crear Orden
+    </button>
+    <p style="margin-top: 10px; font-size: 12px; color: #64748b;">Demo: La validacion de stock y descuento atomico esta simulada</p>
+</div>
+
+<script>
+// NOTA: Funcion para crear orden via fetch
+function crearOrden() {
+    var recetaId = document.getElementById('recetaSelect').value;
+    var cantidad = document.getElementById('cantidad').value;
+    
+    if (recetaId === "" || cantidad === "") {
+        alert("Seleccione una receta y una cantidad");
+        return;
+    }
+    
+    fetch('/crear_orden', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            receta_id: parseInt(recetaId),
+            cantidad: parseInt(cantidad)
+        })
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        alert(data.mensaje);
+        location.reload();
+    })
+    .catch(function(error) {
+        alert("Error: " + error);
+    });
+}
+</script>
+{% endblock %}

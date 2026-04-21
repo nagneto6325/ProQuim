@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProQuim - Iniciar Sesion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- NOTA: Este login NO valida contrasena. Cualquier usuario entra. -->
+    <!-- Solo para demostracion de los patrones de diseño -->
+    <div class="login-container">
+        <h1>🔐 ProQuim</h1>
+        <h3 style="text-align:center; margin-bottom:30px;">Sistema de Gestion de Produccion</h3>
+        
+        <form method="POST">
+            <input type="text" name="username" placeholder="Usuario (cualquier cosa)" required>
+            <input type="password" name="password" placeholder="Contrasena (cualquier cosa)" required>
+            
+            <select name="rol" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <option value="Administrador">Administrador</option>
+                <option value="Jefe de Produccion">Jefe de Produccion</option>
+                <option value="Operario">Operario</option>
+            </select>
+            
+            <button type="submit">Iniciar Sesion</button>
+        </form>
+        
+        <div style="margin-top: 20px; font-size: 12px; text-align: center; color: #64748b;">
+            Demo: Cualquier usuario/contrasena funciona
+        </div>
+    </div>
+</body>
+</html>

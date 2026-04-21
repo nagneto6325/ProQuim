@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>📊 Control de Inventario</h1>
+
+<!-- NOTA: Esta tabla muestra todos los materiales con su stock actual -->
+<div class="card">
+    <h3>📦 Stock Actual</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8fafc;">
+                <th style="padding: 12px; text-align: left;">Material</th>
+                <th style="padding: 12px; text-align: left;">Cantidad</th>
+                <th style="padding: 12px; text-align: left;">Stock Minimo</th>
+                <th style="padding: 12px; text-align: left;">Unidad</th>
+                <th style="padding: 12px; text-align: left;">Estado</th>
+                <th style="padding: 12px; text-align: left;">Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(inventario|length) %}
+            {% set item = inventario[i] %}
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 12px;">{{ item['nombre'] }}</td>
+                <td style="padding: 12px;">
+                    <span id="cantidad-{{ i }}">{{ item['cantidad'] }}</span>
+                </td>
+                <td style="padding: 12px;">{{ item['stock_minimo'] }}</td>
+                <td style="padding: 12px;">{{ item['unidad'] }}</td>
+                <td style="padding: 12px;">
+                    {% if item['cantidad'] < item['stock_minimo'] %}
+                    <span style="color: red; font-weight: bold;">CRITICO</span>
+                    {% else %}
+                    <span style="color: green;">Normal</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 12px;">
+                    <input type="number" id="input-{{ i }}" value="{{ item['cantidad'] }}" style="width: 80px;">
+                    <button onclick="actualizarStock({{ i }})" style="background: #2563eb; color: white; border: none; padding: 5px 10px; border-radius: 5px;">Actualizar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- NOTA: Las alertas se muestran automaticamente cuando el stock esta bajo -->
+<div class="card">
+    <h3>Alertas de Stock Bajo</h3>
+    {% for i in range(inventario|length) %}
+        {% set item = inventario[i] %}
+        {% if item['cantidad'] < item['stock_minimo'] %}
+        <div style="background: #fee2e2; padding: 10px; margin: 5px 0; border-radius: 5px; border-left: 4px solid red;">
+            <strong>{{ item['nombre'] }}</strong>: {{ item['cantidad'] }} {{ item['unidad'] }} (Minimo: {{ item['stock_minimo'] }})
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<script>
+// NOTA: Funcion para actualizar stock via fetch
+function actualizarStock(indice) {
+    const input = document.getElementById('input-' + indice);
+    const nuevaCantidad = parseInt(input.value);
+    
+    if (isNaN(nuevaCantidad)) {
+        alert('Ingrese un numero valido');
+        return;
+    }
+    
+    fetch('/actualizar_stock', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({indice: indice, cantidad: nuevaCantidad})
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.mensaje);
+        location.reload();
+    });
+}
+</script>
+{% endblock %}

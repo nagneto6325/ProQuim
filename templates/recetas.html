@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>📋 Gestion de Recetas Tecnicas</h1>
+
+<!-- NOTA: Lista de todas las recetas con sus ingredientes y compatibilidad quimica -->
+<div class="card">
+    <h3>Lista de Recetas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Categoria</th>
+                <th>Rendimiento (g)</th>
+                <th>Compatibilidad</th>
+                <th>Ingredientes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for receta in recetas %}
+            <tr>
+                <td>{{ receta.id }}</td>
+                <td>{{ receta.nombre }}</td>
+                <td>{{ receta.categoria }}</td>
+                <td>{{ receta.rendimiento }}</td>
+                <td>
+                    {% if receta.compatible %}
+                    <span class="badge badge-success">Compatible</span>
+                    {% else %}
+                    <span class="badge badge-danger">Incompatible</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% for ing in receta.ingredientes %}
+                    {{ ing.nombre }} ({{ ing.gramos }}g){% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- NOTA: Aqui se puede cambiar la estrategia de validacion quimica -->
+<div class="card">
+    <h3>Validacion Quimica - Strategy Pattern</h3>
+    <p>Seleccione el tipo de validacion:</p>
+    <select id="estrategiaSelect" style="padding: 8px; margin-right: 10px;">
+        <option value="basica">Basica (solo incompatibilidades)</option>
+        <option value="gramaje">Gramaje (debe sumar 1000g)</option>
+        <option value="completa">Completa (activos + proporcion)</option>
+    </select>
+    <button class="btn btn-primary" onclick="cambiarEstrategia()">
+        Cambiar Estrategia
+    </button>
+    <button class="btn" onclick="validarRecetaDemo()" style="margin-left: 10px;">
+        Probar Validacion
+    </button>
+    <p id="resultadoValidacion" style="margin-top: 10px; font-size: 14px;"></p>
+</div>
+
+<script>
+// NOTA: Cambia la estrategia de validacion en el backend
+function cambiarEstrategia() {
+    var tipo = document.getElementById('estrategiaSelect').value;
+    
+    fetch('/cambiar_validacion', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({tipo: tipo})
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        alert(data.mensaje);
+    });
+}
+
+// NOTA: Prueba la validacion con los ingredientes de la receta 3 (la incompatible)
+function validarRecetaDemo() {
+    var ingredientesDemo = [
+        {"nombre": "Alcohol Etilico", "gramos": 300},
+        {"nombre": "Amoniaco", "gramos": 100},
+        {"nombre": "Agua Destilada", "gramos": 600}
+    ];
+    
+    fetch('/validar_receta', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ingredientes: ingredientesDemo})
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        var resultado = document.getElementById('resultadoValidacion');
+        if (data.compatible) {
+            resultado.innerHTML = '✅ ' + data.mensaje;
+            resultado.style.color = 'green';
+        } else {
+            resultado.innerHTML = '⚠️ ' + data.mensaje;
+            resultado.style.color = 'red';
+        }
+    });
+}
+</script>
+{% endblock %}
