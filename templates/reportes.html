@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>📈 Reportes y Analisis</h1>
+
+<!-- NOTA: KPIs de produccion calculados desde ordenes_produccion -->
+<div class="grid-3">
+    <div class="kpi-card">
+        <h3>Total Ordenes</h3>
+        <div class="kpi-number">{{ total_ordenes }}</div>
+    </div>
+    
+    <div class="kpi-card">
+        <h3>Ordenes Completadas</h3>
+        <div class="kpi-number">{{ ordenes_completadas }}</div>
+    </div>
+    
+    <div class="kpi-card">
+        <h3>Eficiencia</h3>
+        <div class="kpi-number">{{ eficiencia }}%</div>
+    </div>
+</div>
+
+<!-- NOTA: Factory Method + Decorator se usan para generar y exportar reportes -->
+<div class="card">
+    <h3>📊 Rendimiento por Lote</h3>
+    <p>Graficos de produccion y analisis de desperdicios</p>
+    <button class="btn btn-primary" onclick="exportarPDF()">
+        Exportar a PDF
+    </button>
+    <button class="btn btn-primary" onclick="exportarExcel()" style="margin-left: 10px;">
+        Exportar a Excel
+    </button>
+</div>
+
+<div class="card">
+    <h3>📉 Consumo de Materias Primas</h3>
+    <p>Reporte detallado de consumo por periodo</p>
+    <button class="btn" onclick="generarReporte()">
+        Generar Reporte Completo
+    </button>
+    <div id="reporteResultado" style="margin-top: 15px; padding: 10px; background: #f8fafc; border-radius: 8px; display: none;">
+        <pre id="reporteContenido" style="margin: 0; font-family: monospace;"></pre>
+    </div>
+</div>
+
+<script>
+// NOTA: Exportar a PDF usando el decorador
+function exportarPDF() {
+    fetch('/exportar_pdf')
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        alert(data.mensaje);
+    });
+}
+
+// NOTA: Exportar a Excel usando el decorador
+function exportarExcel() {
+    fetch('/exportar_excel')
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        alert(data.mensaje);
+    });
+}
+
+// NOTA: Genera reporte completo usando Factory Method
+function generarReporte() {
+    fetch('/reportes')
+    .then(function(response) {
+        return response.text();
+    })
+    .then(function(html) {
+        var div = document.getElementById('reporteResultado');
+        var contenido = document.getElementById('reporteContenido');
+        contenido.innerHTML = 'Reporte generado con Factory Method + Decorator\nTotal ordenes: {{ total_ordenes }}\nCompletadas: {{ ordenes_completadas }}\nEficiencia: {{ eficiencia }}%';
+        div.style.display = 'block';
+    });
+}
+</script>
+{% endblock %}

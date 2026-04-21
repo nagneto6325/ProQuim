@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Gestion de Recetas Tecnicas</h1>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="margin: 0;">Lista de Recetas</h3>
+        <button class="btn btn-primary" onclick="mostrarModalCrear()" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
+            + Nueva Receta
+        </button>
+    </div>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8fafc;">
+                <th style="padding: 12px; text-align: left;">Nombre</th>
+                <th style="padding: 12px; text-align: left;">Categoria</th>
+                <th style="padding: 12px; text-align: left;">Rendimiento (g)</th>
+                <th style="padding: 12px; text-align: left;">Compatibilidad</th>
+                <th style="padding: 12px; text-align: left;">Ingredientes</th>
+                <th style="padding: 12px; text-align: left;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for receta in recetas %}
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 12px;">{{ receta.nombre }}</td>
+                <td style="padding: 12px;">{{ receta.categoria }}</td>
+                <td style="padding: 12px;">{{ receta.rendimiento }}</td>
+                <td style="padding: 12px;">
+                    {% if receta.compatible %}
+                    <span class="badge badge-success">Compatible</span>
+                    {% else %}
+                    <span class="badge badge-danger">Incompatible</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 12px;">
+                    {% for ing in receta.ingredientes %}
+                    {{ ing.nombre }} ({{ ing.gramos }}g){% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td style="padding: 12px;">
+                    <button class="btn" onclick="mostrarModalEditar('{{ receta.nombre }}')" style="background: #64748b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Editar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal para crear/editar recetas -->
+<div id="modalReceta" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="background: white; width: 500px; margin: 100px auto; padding: 20px; border-radius: 10px;">
+        <h3 id="modalTitulo">Crear Receta</h3>
+        <form id="formReceta">
+            <div style="margin-bottom: 10px;">
+                <label>Nombre:</label>
+                <input type="text" id="nombreReceta" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px;" required>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Categoria:</label>
+                <input type="text" id="categoriaReceta" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px;" required>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Rendimiento (g):</label>
+                <input type="number" id="rendimientoReceta" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px;" required>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Ingredientes (formato: nombre:gramos, nombre:gramos):</label>
+                <textarea id="ingredientesReceta" rows="3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Ejemplo: Acido Sulfonico:150, Hidroxido de Sodio:50, Agua Destilada:800" required></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="cerrarModal()" style="padding: 8px 16px; border: 1px solid #ccc; background: white; border-radius: 5px; cursor: pointer;">Cancelar</button>
+                <button type="submit" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer;">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Validacion Quimica - Strategy Pattern</h3>
+    <p>Seleccione el tipo de validacion:</p>
+    <select id="estrategiaSelect" style="padding: 8px; margin-right: 10px;">
+        <option value="basica">Basica (solo incompatibilidades)</option>
+        <option value="gramaje">Gramaje (debe sumar 1000g)</option>
+        <option value="completa">Completa (activos + proporcion)</option>
+    </select>
+    <button class="btn btn-primary" onclick="cambiarEstrategia()">
+        Cambiar Estrategia
+    </button>
+    <button class="btn" onclick="validarRecetaDemo()" style="margin-left: 10px;">
+        Probar Validacion
+    </button>
+    <p id="resultadoValidacion" style="margin-top: 10px; font-size: 14px;"></p>
+</div>
+
+<script>
+function mostrarModalCrear() {
+    document.getElementById('modalTitulo').innerText = 'Crear Receta';
+    document.getElementById('nombreReceta').value = '';
+    document.getElementById('categoriaReceta').value = '';
+    document.getElementById('rendimientoReceta').value = '';
+    document.getElementById('ingredientesReceta').value = '';
+    document.getElementById('modalReceta').style.display = 'block';
+}
+
+function mostrarModalEditar(nombre) {
+    document.getElementById('modalTitulo').innerText = 'Editar Receta: ' + nombre;
+    document.getElementById('nombreReceta').value = nombre;
+    document.getElementById('categoriaReceta').value = 'Limpieza';
+    document.getElementById('rendimientoReceta').value = 1000;
+    document.getElementById('ingredientesReceta').value = 'Agua Destilada:800, Quimico:200';
+    document.getElementById('modalReceta').style.display = 'block';
+}
+
+function cerrarModal() {
+    document.getElementById('modalReceta').style.display = 'none';
+}
+
+document.getElementById('formReceta').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Demo: Receta guardada (simulacion)');
+    cerrarModal();
+});
+
+function cambiarEstrategia() {
+    var tipo = document.getElementById('estrategiaSelect').value;
+    
+    fetch('/cambiar_validacion', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({tipo: tipo})
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        alert(data.mensaje);
+    });
+}
+
+function validarRecetaDemo() {
+    var ingredientesDemo = [
+        {"nombre": "Alcohol Etilico", "gramos": 300},
+        {"nombre": "Amoniaco", "gramos": 100},
+        {"nombre": "Agua Destilada", "gramos": 600}
+    ];
+    
+    fetch('/validar_receta', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ingredientes: ingredientesDemo})
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        var resultado = document.getElementById('resultadoValidacion');
+        if (data.compatible) {
+            resultado.innerHTML = data.mensaje;
+            resultado.style.color = 'green';
+        } else {
+            resultado.innerHTML = data.mensaje;
+            resultado.style.color = 'red';
+        }
+    });
+}
+</script>
+{% endblock %}
