@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProQuim - Sistema de Gestión de Producción</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('recetas_page') }}">Recetas</a>
+            <a href="{{ url_for('ordenes_page') }}">Órdenes</a>
+            <a href="{{ url_for('inventario_page') }}">Inventario</a>
+            <a href="{{ url_for('reportes_page') }}">Reportes</a>
+            <a href="{{ url_for('configuracion_page') }}">Configuración</a>
+        </div>
+        <div class="user-info">
+            <span>👤 {{ session.get('user', 'Demo') }} ({{ session.get('rol', 'Administrador') }})</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar Sesión</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

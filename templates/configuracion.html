@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>⚙️ Configuración del Sistema</h1>
+
+<div class="card">
+    <h3>👥 Usuarios Registrados</h3>
+    
+    {% if usuarios %}
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8fafc;">
+                <th style="padding: 12px; text-align: left;">Usuario</th>
+                <th style="padding: 12px; text-align: left;">Rol</th>
+                <th style="padding: 12px; text-align: left;">Permisos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in usuarios %}
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 12px;">{{ user.username }}</td>
+                <td style="padding: 12px;">{{ user.rol }}</td>
+                <td style="padding: 12px;">
+                    {% if user.rol == 'Administrador' %}
+                        🔓 Acceso total
+                    {% elif user.rol == 'Jefe de Producción' %}
+                        📋 Gestión de recetas y órdenes
+                    {% else %}
+                        👷 Ver órdenes y reportes
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No hay usuarios registrados</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>➕ Crear Nuevo Usuario</h3>
+    <div>
+        <label>Usuario:</label>
+        <input type="text" id="nuevoUser" placeholder="ejemplo: juan" style="padding: 8px; margin: 5px; width: 200px;">
+    </div>
+    <div>
+        <label>Contraseña:</label>
+        <input type="password" id="nuevoPass" placeholder="****" style="padding: 8px; margin: 5px; width: 200px;">
+    </div>
+    <div>
+        <label>Rol:</label>
+        <select id="nuevoRol" style="padding: 8px; margin: 5px; width: 200px;">
+            <option value="Administrador">Administrador</option>
+            <option value="Jefe de Producción">Jefe de Producción</option>
+            <option value="Operario">Operario</option>
+        </select>
+    </div>
+    <div>
+        <button onclick="crearUsuario()" style="background: #2563eb; color: white; border: none; padding: 8px 20px; border-radius: 5px; margin: 5px;">Crear Usuario</button>
+    </div>
+</div>
+
+<div class="card">
+    <h3>🔧 Patrones de Diseño Activos</h3>
+    <ul>
+        <li>🔧 Singleton - Una sola instancia de datos</li>
+        <li>🏭 Factory Method - Creación de reportes</li>
+        <li>🔔 Observer - Alertas de inventario</li>
+        <li>🧠 Strategy - Validación química intercambiable</li>
+        <li>🧩 Decorator - Exportación de reportes (PDF/Excel)</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h3>🔒 Trazabilidad Inalterable</h3>
+    <p>✅ Los lotes de producción no pueden modificarse una vez completados</p>
+    <p>✅ Auditoría de cambios registrada en el sistema</p>
+    <p>✅ Cumple con RN-05 (Trazabilidad inalterable de lotes)</p>
+    <p>✅ Cumple con HU-08 (Control de trazabilidad inalterable)</p>
+</div>
+
+<script>
+function crearUsuario() {
+    var username = document.getElementById('nuevoUser').value;
+    var password = document.getElementById('nuevoPass').value;
+    var rol = document.getElementById('nuevoRol').value;
+    
+    if (username === "" || password === "") {
+        alert("Complete todos los campos");
+        return;
+    }
+    
+    fetch('/crear_usuario', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            rol: rol
+        })
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        alert(data.mensaje);
+        location.reload();
+    })
+    .catch(function(error) {
+        alert("Error: " + error);
+    });
+}
+</script>
+{% endblock %}
